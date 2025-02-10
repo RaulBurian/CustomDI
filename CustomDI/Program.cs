@@ -11,7 +11,7 @@ services.RegisterSingleton<IConsoleLoggerService>(sp =>
     var guidService = sp.GetService<IGuidProvider>();
     return new ConsoleLoggerService(guidService);
 });
-services.RegisterScoped(new ScopedPrinter());
+services.RegisterScoped<ScopedPrinter>();
     
 var diContainer = services.BuildServiceProvider();
 
@@ -44,6 +44,21 @@ using (var scope = diContainer.BeginScope())
     var scopedPrinter2 = scope.GetService<ScopedPrinter>();
     scopedPrinter1.PrintString();
     scopedPrinter2.PrintString();
+    Console.WriteLine("--------------------------------");
+    
+    var guidProvider = scope.GetService<IGuidProvider>();
+    Console.WriteLine(guidProvider.NewGuid());
+}
+
+Console.WriteLine("--------------------------------");
+Console.WriteLine("--------------------------------");
+
+using (var scope = diContainer.BeginScope())
+{
+    var scopedPrinter3 = scope.GetService<ScopedPrinter>();
+    var scopedPrinter4 = scope.GetService<ScopedPrinter>();
+    scopedPrinter3.PrintString();
+    scopedPrinter4.PrintString();
     Console.WriteLine("--------------------------------");
     
     var guidProvider = scope.GetService<IGuidProvider>();

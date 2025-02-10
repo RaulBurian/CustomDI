@@ -48,13 +48,6 @@ public class DiServiceCollection
         return this;
     }
 
-    public DiServiceCollection RegisterScoped<TService>(TService implementation) where TService : class
-    {
-        _services.Add(new ServiceDescriptor(typeof(TService), implementation, ServiceLifetime.Scoped));
-
-        return this;
-    }
-
     public DiServiceCollection RegisterScoped<TService>(Func<DiContainer, TService> factory) where TService : class
     {
         _services.Add(new ServiceDescriptor(typeof(TService), (Func<DiContainer, object>)FactoryDelegate, ServiceLifetime.Scoped));
@@ -74,13 +67,6 @@ public class DiServiceCollection
     public DiServiceCollection RegisterTransient<TInterface, TService>() where TService : TInterface where TInterface : class
     {
         _services.Add(new ServiceDescriptor(typeof(TInterface), typeof(TService), ServiceLifetime.Transient));
-
-        return this;
-    }
-
-    public DiServiceCollection RegisterTransient<TService>(TService implementation) where TService : class
-    {
-        _services.Add(new ServiceDescriptor(typeof(TService), implementation, ServiceLifetime.Transient));
 
         return this;
     }
