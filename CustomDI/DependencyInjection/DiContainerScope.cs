@@ -30,7 +30,7 @@ public class DiContainerScope : IDisposable
         GC.SuppressFinalize(this);
         foreach (var serviceDescriptor in _descriptorsToDispose)
         {
-            if (serviceDescriptor is { Lifetime: ServiceLifetime.Singleton, Implementation: IDisposable disposable })
+            if (serviceDescriptor is { Implementation: IDisposable disposable })
             {
                 disposable.Dispose();
             }
