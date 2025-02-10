@@ -45,6 +45,5 @@ public enum ServiceLifetime
 {
     Singleton,
     Transient,
-    Scoped,
-    SingletonScoped
+    Scoped, 
 }
