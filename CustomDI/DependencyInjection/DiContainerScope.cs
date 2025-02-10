@@ -28,6 +28,7 @@ public class DiContainerScope : IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(this);
+        
         foreach (var serviceDescriptor in _descriptorsToDispose)
         {
             if (serviceDescriptor is { Implementation: IDisposable disposable })

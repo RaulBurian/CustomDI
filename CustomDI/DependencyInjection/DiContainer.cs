@@ -1,6 +1,6 @@
 ﻿namespace CustomDI.DependencyInjection;
 
-public class DiContainer
+public class DiContainer : IDisposable
 {
     private readonly List<ServiceDescriptor> _services;
 
