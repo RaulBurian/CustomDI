@@ -9,6 +9,11 @@ public class DiContainer
         _services = services;
     }
 
+    public DiContainerScope BeginScope()
+    {
+        return new DiContainerScope(_services);
+    }
+
     public TService GetService<TService>()
     {
         return (TService)GetService(typeof(TService));
@@ -24,21 +29,14 @@ public class DiContainer
             throw new NotRegisteredException($"Service of type {type.FullName} is not registered");
         }
 
-        if ((descriptor.Implementation, descriptor.Lifetime) is (not null, ServiceLifetime.Singleton))
+        if (descriptor is { Implementation: not null, Lifetime: ServiceLifetime.Singleton })
         {
-            return descriptor.Implementation;
+            return ImplementationSingleton(descriptor);
         }
 
         if (descriptor.ImplementationFactory is not null)
         {
-            var service = descriptor.ImplementationFactory(this);
-
-            if (descriptor.Lifetime == ServiceLifetime.Singleton)
-            {
-                _services[idx] = descriptor with { Implementation = service };
-            }
-            
-            return service;
+            return ImplementationFactory(descriptor, idx);
         }
 
         var actualServiceType = descriptor.ImplementationType ?? descriptor.ServiceType;
@@ -48,6 +46,13 @@ public class DiContainer
             throw new NotRegisteredException($"No service which can be instantiated for the {actualServiceType.FullName} is registered");
         }
 
+        var implementation = ResolveImplementation(actualServiceType, descriptor, idx);
+
+        return implementation;
+    }
+
+    private object ResolveImplementation(Type actualServiceType, ServiceDescriptor descriptor, int idx)
+    {
         var primaryConstructorInfo = actualServiceType.GetConstructors().First();
         var constructorParameters = primaryConstructorInfo.GetParameters()
             .Select(parameter => GetService(parameter.ParameterType))
@@ -61,5 +66,35 @@ public class DiContainer
         }
 
         return implementation;
+    }
+
+    private static object ImplementationSingleton(ServiceDescriptor descriptor)
+    {
+        return descriptor.Implementation!;
+    }
+
+    private object ImplementationFactory(ServiceDescriptor descriptor, int idx)
+    {
+        var service = descriptor.ImplementationFactory!(this);
+
+        if (descriptor.Lifetime == ServiceLifetime.Singleton)
+        {
+            _services[idx] = descriptor with { Implementation = service };
+        }
+            
+        return service;
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+
+        foreach (var serviceDescriptor in _services)
+        {
+            if (serviceDescriptor is { Lifetime: ServiceLifetime.Singleton, Implementation: IDisposable disposable })
+            {
+                disposable.Dispose();
+            }
+        }
     }
 }

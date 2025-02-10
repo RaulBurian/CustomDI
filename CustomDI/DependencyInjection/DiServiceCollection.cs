@@ -2,7 +2,7 @@
 
 public class DiServiceCollection
 {
-    private readonly List<ServiceDescriptor> _services = new();
+    private readonly List<ServiceDescriptor> _services = [];
 
     public DiServiceCollection RegisterSingleton<TService>()
     {
@@ -28,7 +28,37 @@ public class DiServiceCollection
     public DiServiceCollection RegisterSingleton<TService>(Func<DiContainer, TService> factory) where TService : class
     {
         _services.Add(new ServiceDescriptor(typeof(TService), (Func<DiContainer, object>)FactoryDelegate, ServiceLifetime.Singleton));
-        
+
+        return this;
+
+        object FactoryDelegate(DiContainer sp) => factory(sp);
+    }
+    
+    public DiServiceCollection RegisterScoped<TService>()
+    {
+        _services.Add(new ServiceDescriptor(typeof(TService), ServiceLifetime.Scoped));
+
+        return this;
+    }
+
+    public DiServiceCollection RegisterScoped<TInterface, TService>() where TService : TInterface where TInterface : class
+    {
+        _services.Add(new ServiceDescriptor(typeof(TInterface), typeof(TService), ServiceLifetime.Scoped));
+
+        return this;
+    }
+
+    public DiServiceCollection RegisterScoped<TService>(TService implementation) where TService : class
+    {
+        _services.Add(new ServiceDescriptor(typeof(TService), implementation, ServiceLifetime.Scoped));
+
+        return this;
+    }
+
+    public DiServiceCollection RegisterScoped<TService>(Func<DiContainer, TService> factory) where TService : class
+    {
+        _services.Add(new ServiceDescriptor(typeof(TService), (Func<DiContainer, object>)FactoryDelegate, ServiceLifetime.Scoped));
+
         return this;
 
         object FactoryDelegate(DiContainer sp) => factory(sp);
@@ -54,11 +84,11 @@ public class DiServiceCollection
 
         return this;
     }
-    
+
     public DiServiceCollection RegisterTransient<TService>(Func<DiContainer, TService> factory) where TService : class
     {
         _services.Add(new ServiceDescriptor(typeof(TService), (Func<DiContainer, object>)FactoryDelegate, ServiceLifetime.Transient));
-        
+
         return this;
 
         object FactoryDelegate(DiContainer sp) => factory(sp);

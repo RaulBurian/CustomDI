@@ -38,7 +38,7 @@ public record ServiceDescriptor
 
     public Func<DiContainer, object>? ImplementationFactory { get; }
 
-    public ServiceLifetime Lifetime { get; }
+    public ServiceLifetime Lifetime { get; init; }
 }
 
 public enum ServiceLifetime
@@ -46,4 +46,5 @@ public enum ServiceLifetime
     Singleton,
     Transient,
     Scoped,
+    SingletonScoped
 }
